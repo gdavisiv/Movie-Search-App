@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Movie Searcher
 //
-//  Created by user163072 on 3/23/20.
+//  Created by GdavisIV on 3/23/20.
 //  Copyright © 2020 George Davis IV. All rights reserved.
 //
 
