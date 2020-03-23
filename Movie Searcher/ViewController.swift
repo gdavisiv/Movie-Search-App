@@ -9,15 +9,6 @@
 
 import UIKit
 
-//UI
-
-//Network Request to get movie list
-
-//Tap a cell to see info about the movie
-
-//Custom Cell to show the movie
-
-
 class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource {
 
     //We'll need two outlets for a user interface a field and table
@@ -52,19 +43,43 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         guard let text = field.text, !text.isEmpty else {
             return
         }
-        URLSession.shared.dataTask(with: URL(string: "http://www.omdbapi.com/?apikey=955921a1=fast%20and&type=movie")!,
-                                   completionHandler: {data, reponse, error in
-                                    guard let data = data, error = nil else {
-                                        return
-                                    }
-                                    
-                                    //Convert Data
-                                    
-                                    //Update the Movie Array
-                                    
-                                    //Refresh the table
-            //This is how you start the REQUST, the naming conventions makes no sense though!! BE AWARE!!
-            }).resume()
+        
+        //All spaces between text need to be removed
+        let query = text.replacingOccurrences(of: " ", with: "%20")
+        
+        movies.removeAll()
+        
+        URLSession.shared.dataTask(with: URL(string: "https://www.omdbapi.com/?apikey=955921a1&s=\(query)&type=movie")!,
+               completionHandler: {data, reponse, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                
+                //Convert Data using Swifts Codable
+                var result: MovieResult?
+                do {
+                    result = try JSONDecoder().decode(MovieResult.self, from: data)
+                }
+                catch {
+                    print("error")
+                }
+                
+                guard let finalResult = result else {
+                    return
+                }
+                
+                //Update the Movies Array
+                let newMovies = finalResult.Search
+                self.movies.append(contentsOf: newMovies)
+                
+                //Refresh the table
+                //This is how the user interface is updated
+                DispatchQueue.main.async {
+                    self.table.reloadData()
+                }
+                    
+                //This is how you start the REQUST, the naming conventions makes no sense though!! BE AWARE!!
+        }).resume()
         
     }
     
@@ -87,6 +102,19 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     //and did select a row
 }
 
-struct Movie {
+struct MovieResult: Codable {
+    let Search: [Movie]
+}
+
+struct Movie: Codable {
+    let Title: String
+    let Year: String
+    let imdbID: String
+    //Typpe is reserved for Json
+    let _Type: String
+    let Poster: String
     
+    private enum CodingKeys: String, CodingKey {
+        case Title, Year, imdbID, _Type = "Type", Poster
+    }
 }
