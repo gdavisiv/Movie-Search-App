@@ -32,4 +32,12 @@ class MovieTableViewCell: UITableViewCell {
         return UINib(nibName: "MovieTableViewCell", bundle: nil)
     }
     
+    func configure(with model: Movie) {
+        self.movieTitleLabel.text = model.Title
+        self.movieYearLabel.text = model.Year
+        let url = model.Poster
+        if let data = try? Data(contentsOf: URL(string: url)!) {
+            self.moviePosterImageView.image = UIImage(data: data)
+        }
+    }
 }

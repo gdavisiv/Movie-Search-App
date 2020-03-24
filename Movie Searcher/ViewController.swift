@@ -8,6 +8,7 @@
 //API Key : http://www.omdbapi.com/
 
 import UIKit
+import SafariServices
 
 class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource {
 
@@ -21,6 +22,8 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        //
+        table.register(MovieTableViewCell.nib(), forCellReuseIdentifier: MovieTableViewCell.identifier)
         //Assign the delegate and dataSource
         table.delegate = self
         table.dataSource = self
@@ -90,13 +93,18 @@ class ViewController: UIViewController, UITextFieldDelegate, UITableViewDelegate
     
     //Number of rows in the table
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.identifier, for: indexPath) as! MovieTableViewCell
+        cell.configure(with: movies[indexPath.row])
+        return cell
     }
     
     //cell for Row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         //Show movie details
+        let url = "https://www.imdb.com/title/\(movies[indexPath.row].imdbID)/"
+        let vc = SFSafariViewController(url: URL(string: url)!)
+        present(vc, animated: true)
     }
     
     //and did select a row
